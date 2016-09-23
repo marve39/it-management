@@ -10,7 +10,7 @@
 
     <parent>
         <groupId>info.arindra</groupId>
-        <artifactId>spring-cloud-microservice-example-parent</artifactId>
+        <artifactId>it-management-service-parent</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
