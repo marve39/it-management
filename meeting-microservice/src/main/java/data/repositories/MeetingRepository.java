@@ -13,31 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package data.domain;
+package data.repositories;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import java.util.List;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import javax.transaction.Transactional;
+import data.domain.Meeting;
+
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 /**
- * An user.
- *
+ * A repository to manage {@link User} instances.
+ * 
  * @author Greg Turnquist
  * @author Oliver Gierke
  */
-@Entity
-@Data
-@RequiredArgsConstructor
-public class Meeting {
 
-	private @Id @GeneratedValue Long id;
-	private final String userName;
-	private final String password;
-	private final String firstName;
-	private final String lastName;
-	private final String email;
-	private final String contactNumber;
+@Transactional
+public interface MeetingRepository extends CrudRepository<Meeting, Long> {
+	@Query("SELECT m FROM Meeting m")
+	public List<Meeting> customQuery();
 }
