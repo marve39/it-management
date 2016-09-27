@@ -23,6 +23,7 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.PropertySource;
 
 /**
  * Application configuration file. Used for bootstrap and data setup.
@@ -36,13 +37,15 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 //@EnableZuulProxy
 //@EnableHystrix
 @EnableFeignClients
-@EnableAutoConfiguration
+//@EnableAutoConfiguration
+//@PropertySource(value = "classpath:application.properties")
 public class Application {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
 	
-	@Value("${id.jumpaja.salt.key}")
-	public static String saltKey;
+	//@Value("${id.jumpaja.salt.key}")
+	public static String saltKey="2449e154324b52bca7ccec4d06930642";
+	public static String jumpajaAPI = "http://euro-mtg.jumpaja.id:8888/bigbluebutton/api/";
 }

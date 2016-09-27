@@ -21,6 +21,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import java.net.URLEncoder;
+
 import javax.persistence.Column;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -55,7 +57,12 @@ public class Meeting {
 	private final String record;
 	private final Long createdBy;
 	private final Boolean isMeetingEnded;
+	private final String participantList;
+	private final String moderatorList;
 	private String createAPI;
+	private String meetingInfoAPI;
+	private String isMeetingRunningAPI;
+	private String endMeetingAPI;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy HH:mm")
 	@Temporal(TemporalType.TIMESTAMP)
@@ -70,7 +77,7 @@ public class Meeting {
 	private final Calendar createdTime;
 
 	protected Meeting() {
-		this(null, null, null, null, null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 	}
 
 	@PreUpdate
@@ -79,30 +86,53 @@ public class Meeting {
 
 		String DELIMITTER = "&";
 
-		String name_URL = "name=" + this.name;
-		String meetingID_URL = "meetingID=" + this.meetingID;
-		String attendeePW_URL = "attendeePW=" + this.attendeePW;
-		String moderatorPW_URL = "moderatorPW=" + this.moderatorPW;
-		String welcome_URL = "welcome=" + this.welcome;
-		String logout_URL = "logoutURL=" + this.logoutURL;
-		String record_URL = "record=" + this.record;
+		String name_URL = (this.name != null)?"name=" + URLEncoder.encode(this.name):"";
+		String meetingID_URL = (this.meetingID != null)?"meetingID=" + URLEncoder.encode(this.meetingID):"";
+		String attendeePW_URL = (this.attendeePW != null)?"attendeePW=" + this.attendeePW:"";
+		String moderatorPW_URL = (this.moderatorPW != null)?"moderatorPW=" + this.moderatorPW:"";
+		String welcome_URL = (this.welcome != null)?"welcome=" + URLEncoder.encode(this.welcome):"";
+		String logout_URL = (this.logoutURL != null)?"logoutURL=" + URLEncoder.encode(this.logoutURL):"";
+		String record_URL = (this.record != null)?"record=" + this.record:"";
 
+		// Create API
 		String createAPI_URL = name_URL + DELIMITTER + meetingID_URL + DELIMITTER + attendeePW_URL + DELIMITTER
 				+ moderatorPW_URL + DELIMITTER + welcome_URL + DELIMITTER + logout_URL + DELIMITTER + record_URL;
+		createAPI = "create?" + createAPI_URL + DELIMITTER + "checksum=" + sha1("create" + createAPI_URL + Application.saltKey);
 
-		String composeCreateURL = createAPI_URL + Application.saltKey;
-		
-		System.out.println("SALT KEY = " + Application.saltKey);
+		// getMeetingInfo
+		String meetingInfoAPI_URL = meetingID_URL + DELIMITTER + moderatorPW_URL;
+                meetingInfoAPI = "getMeetingInfo?" + meetingInfoAPI_URL + DELIMITTER + "checksum=" + sha1("getMeetingInfo" + meetingInfoAPI_URL + Application.saltKey);
+		// is Meeting Running API
+		String isMeetingRunning_URL = meetingID_URL;
+	        isMeetingRunningAPI = "isMeetingRunning?" + isMeetingRunning_URL + DELIMITTER + "checksum=" + sha1("isMeetingRunning" + isMeetingRunning_URL + Application.saltKey);	
+	
+		// end Meeting API
+		String password_URL = (this.moderatorPW != null)?"password=" + this.moderatorPW:"";
+		String endMeetingAPI_URL = meetingID_URL + DELIMITTER + password_URL;
+		endMeetingAPI = "end?" + endMeetingAPI_URL + DELIMITTER + "checksum=" + sha1("end" + endMeetingAPI_URL + Application.saltKey);
+	}
 
-		// SHA1 Decode
+	public String joinAPIURL(Long userID, String name, Boolean isModerator) throws NoSuchAlgorithmException{
+		String DELIMITTER = "&";
+		String fullName_URL = "fullName=" + name;
+		String password = attendeePW;
+		if (isModerator) password = moderatorPW;
+		//String password_URL = "password=" + (isModerator)?moderatorPW:attendeePW;
+		String password_URL = "password=" + password;
+		String userID_URL = "userID=" + userID;
+		String meetingID_URL = (this.meetingID != null)?"meetingID=" + URLEncoder.encode(this.meetingID):"";
 
-		MessageDigest mDigest = MessageDigest.getInstance("SHA1");
-		byte[] result = mDigest.digest(composeCreateURL.getBytes());
-		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < result.length; i++) {
-			sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
-		}
+		String joinURL = meetingID_URL + DELIMITTER + fullName_URL + DELIMITTER + password_URL + DELIMITTER + userID_URL;
+		return "join?" + joinURL + DELIMITTER + "checksum=" + sha1("join" + joinURL + Application.saltKey);
+	}
 
-		createAPI = createAPI_URL + DELIMITTER + "checksum=" + sb.toString();
+	private String sha1(String input) throws NoSuchAlgorithmException{
+	 	MessageDigest mDigest = MessageDigest.getInstance("SHA1");
+                byte[] result = mDigest.digest(input.getBytes());
+                StringBuffer sb = new StringBuffer();
+                for (int i = 0; i < result.length; i++) {
+                        sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
+                }
+		return sb.toString();
 	}
 }
