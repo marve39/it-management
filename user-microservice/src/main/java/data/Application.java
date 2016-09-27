@@ -29,9 +29,9 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
  * @author Thomas Darimont
  */
 @SpringBootApplication
-@EnableDiscoveryClient
-@EnableZuulProxy
-@EnableHystrix
+//@EnableDiscoveryClient
+//@EnableZuulProxy
+//@EnableHystrix
 public class Application {
 
 	public static void main(String[] args) {

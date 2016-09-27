@@ -19,14 +19,18 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import javax.persistence.Column;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.util.Calendar;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 /**
- * An user.
+ * An Meeting.
  *
- * @author Greg Turnquist
- * @author Oliver Gierke
  */
 @Entity
 @Data
@@ -34,10 +38,29 @@ import lombok.RequiredArgsConstructor;
 public class Meeting {
 
 	private @Id @GeneratedValue Long id;
-	private final String userName;
-	private final String password;
-	private final String firstName;
-	private final String lastName;
-	private final String email;
-	private final String contactNumber;
+	private final String meetingID;
+	private final String name;
+	private final String attendeePW;
+	private final String moderatorPW;
+	private final String welcome;
+	private final String logoutURL;
+	private final String record;
+	private final Long createdBy;
+	private final Boolean isMeetingEnded;
+
+	@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="MM/dd/yyyy HH:mm")
+	@Temporal(TemporalType.TIMESTAMP)
+	private final Calendar startTime;
+
+        @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="MM/dd/yyyy HH:mm")
+        @Temporal(TemporalType.TIMESTAMP)
+        private final Calendar endTime;
+
+        protected Meeting() {
+                this(null, null, null, null, null, null,  null, null, null, null, null);
+        }
+
+//	public String createAPIToken(String saltKey){
+				
+//	}
 }

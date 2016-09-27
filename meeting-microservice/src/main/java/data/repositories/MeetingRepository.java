@@ -35,6 +35,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @Transactional
 public interface MeetingRepository extends CrudRepository<Meeting, Long> {
-	@Query("SELECT m FROM Meeting m")
-	public List<Meeting> customQuery();
+//	@Query("SELECT m FROM Meeting m")
+//	public List<Meeting> scheduledMeeting();
 }
