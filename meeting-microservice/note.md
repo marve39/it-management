@@ -1,0 +1,1 @@
+curl -X POST -i -H "content-type:application/json" -d '{"meetingID": "Test", "startTime": "09/27/16 09:24:00" , "name" : "Test Meeting" , "attendeePW" : "1111" , "moderatorPW" : "2222" , "welcome" : "test" , "logoutURL" : "test" , "record" : "true" , "createdBy" : "1"}' http://127.0.0.1:9002/meeting
