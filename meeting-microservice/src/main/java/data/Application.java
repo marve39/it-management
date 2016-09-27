@@ -21,6 +21,8 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 /**
  * Application configuration file. Used for bootstrap and data setup.
@@ -34,9 +36,13 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 //@EnableZuulProxy
 //@EnableHystrix
 @EnableFeignClients
+@EnableAutoConfiguration
 public class Application {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
+	
+	@Value("${id.jumpaja.salt.key}")
+	public static String saltKey;
 }

@@ -15,6 +15,8 @@
  */
 package data.domain;
 
+import data.Application;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -27,6 +29,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import javax.persistence.PreUpdate;
+import javax.persistence.PrePersist;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -50,48 +55,54 @@ public class Meeting {
 	private final String record;
 	private final Long createdBy;
 	private final Boolean isMeetingEnded;
+	private String createAPI;
 
-	@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="MM/dd/yyyy HH:mm")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy HH:mm")
 	@Temporal(TemporalType.TIMESTAMP)
 	private final Calendar startTime;
 
-        @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="MM/dd/yyyy HH:mm")
-        @Temporal(TemporalType.TIMESTAMP)
-        private final Calendar endTime;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy HH:mm")
+	@Temporal(TemporalType.TIMESTAMP)
+	private final Calendar endTime;
 
-	@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="MM/dd/yyyy HH:mm")
-        @Temporal(TemporalType.TIMESTAMP)
-        private final Calendar createdTime;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy HH:mm")
+	@Temporal(TemporalType.TIMESTAMP)
+	private final Calendar createdTime;
 
-        protected Meeting() {
-                this(null, null, null, null, null, null,  null, null, null, null, null);
-        }
+	protected Meeting() {
+		this(null, null, null, null, null, null, null, null, null, null, null, null);
+	}
 
-	public String createAPIToken(String saltKey) throws NoSuchAlgorithmException {
+	@PreUpdate
+	@PrePersist
+	public void createAPIToken() throws NoSuchAlgorithmException {
 
 		String DELIMITTER = "&";
 
 		String name_URL = "name=" + this.name;
 		String meetingID_URL = "meetingID=" + this.meetingID;
-		String attendeePW_URL = "attendeePW=" + this.attendeePW;		
+		String attendeePW_URL = "attendeePW=" + this.attendeePW;
 		String moderatorPW_URL = "moderatorPW=" + this.moderatorPW;
 		String welcome_URL = "welcome=" + this.welcome;
 		String logout_URL = "logoutURL=" + this.logoutURL;
 		String record_URL = "record=" + this.record;
-		
-		String createAPI_URL = name_URL + DELIMITTER + meetingID_URL + DELIMITTER + attendeePW_URL + DELIMITTER + moderatorPW_URL + DELIMITTER + welcome_URL + DELIMITTER + logout_URL + DELIMITTER + record_URL;
-		
-		String composeCreateURL = createAPI_URL + saltKey;
 
-	`	//SHA1 Decode
+		String createAPI_URL = name_URL + DELIMITTER + meetingID_URL + DELIMITTER + attendeePW_URL + DELIMITTER
+				+ moderatorPW_URL + DELIMITTER + welcome_URL + DELIMITTER + logout_URL + DELIMITTER + record_URL;
+
+		String composeCreateURL = createAPI_URL + Application.saltKey;
+		
+		System.out.println("SALT KEY = " + Application.saltKey);
+
+		// SHA1 Decode
 
 		MessageDigest mDigest = MessageDigest.getInstance("SHA1");
-        	byte[] result = mDigest.digest(composeCreateURL.getBytes());
-        	StringBuffer sb = new StringBuffer();
-        	for (int i = 0; i < result.length; i++) {
-            		sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
-        	}
-         
-        	return createAPI_URL + DELIMITTER + "checksum=" + sb.toString();
+		byte[] result = mDigest.digest(composeCreateURL.getBytes());
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < result.length; i++) {
+			sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
+		}
+
+		createAPI = createAPI_URL + DELIMITTER + "checksum=" + sb.toString();
 	}
 }
