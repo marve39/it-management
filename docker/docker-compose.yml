@@ -1,0 +1,37 @@
+hystrix:
+  image: arindra/hystrix-dashboard
+  ports:
+   - "7979:7979"
+  links:
+   - gateway
+   - discovery
+discovery:
+  image: arindra/discovery-microservice
+  ports:
+   - "8761:8761"
+configserver:
+  image: arindra/config-microservice
+  ports:
+   - "8888:8888"
+  links:
+   - discovery
+gateway:
+  image: arindra/api-gateway-microservice
+  ports:
+   - "10000:10000"
+  links:
+   - discovery
+   - configserver
+   - user
+   - movie
+   - recommendation
+user:
+  image: arindra/users-microservice
+  links:
+   - discovery
+   - configserver
+meeting:
+  image: arindra/meeting-microservice
+  links:
+   - discovery
+   - configserver
